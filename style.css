@@ -1,0 +1,110 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: var(--white);
+    font-family: Arial, Helvetica, sans-serif;
+}
+:root {
+    --purple: #1d2039;
+    --light-purple: #242947;
+    --lighter-purple: #797e9a;
+    --green: #66A663;
+    --white: #fff;
+    --orange: #dbac36;
+}
+body{
+    background-color: var(--purple);
+}
+header{
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    background-color: var(--purple);
+    padding: 20px;
+    border-radius: 20px;
+}
+.logo{
+    width: 80px;
+}
+main{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap-reverse;
+}
+.gameArea{
+    background-color: var(--light-purple);
+    border-radius: 20px;
+    flex-grow: 1000;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+.gameField{
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-template-rows: repeat(8, 30px);
+    gap: 6px;
+}
+.ceil{
+    background-color: var(--lighter-purple);
+    border-radius: 4px;
+    cursor: pointer;
+}
+.ceil.active{
+    background-color: var(--lighter-purple)
+}
+.ceil.flag{
+    background-image: url(./img/flag.jpg);
+    background-size: cover;
+    background-color: #66A663;
+}
+.ceil.active:not(.flag):hover{
+    opacity: 0.7;
+}
+.gameSettings{
+    background-color: var(--light-purple);
+    border-radius: 20px;
+    padding: 40px 20px;
+    flex-grow: 1;
+}
+.gameSettings h2{
+    margin-bottom: 20px;
+    text-align: center;
+}
+.score{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-bottom: 30px;
+}
+.point{
+    flex-basis: 170px;
+    background-color: var(--purple);
+    flex-grow: 1;
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 20px;
+    font-size: 21px;
+    cursor: pointer;
+}
+.point.active{
+    background-color: var(--orange);
+}
+.input{
+    display: none;
+}
+#gameBtn{
+    width: 100%;
+    padding: 20px 0;
+    border-radius: 40px;
+    background-color: var(--green);
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+.disabled-button{
+    pointer-events: none;
+    opacity: 0.5;
+}
