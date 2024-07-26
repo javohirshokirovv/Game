@@ -60,6 +60,11 @@ main{
     background-size: cover;
     background-color: #66A663;
 }
+.cell.bomb{
+    background-image: url(./img/img/bomb.png);
+    background-size: cover;
+    background-color: #ff5100;
+}
 .cell.active:not(.flag):hover{
     opacity: 0.7;
 }

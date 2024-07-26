@@ -1,6 +1,7 @@
 let USERNAME;
-let game_id
+let game_id;
 let points = 1000;
+
 let launch = document.querySelector('.launch');
 
 document.getElementById('login').addEventListener('submit', function(event){
@@ -120,6 +121,13 @@ function activateArea(){
                 event.preventDefault();
                 setFlag(event);
             });
+
+            let row = Math.trunc(i/10);
+            let column = i - row*10;
+            cell.setAttribute('data-row', row);
+            cell.setAttribute('data-column', column);
+
+            cell.addEventListener('click', makeStep);
         }, i * 15);
     });
 }
@@ -140,21 +148,19 @@ function cleanArea(){
     }
 }
 
-let gameBtn = document.getElementById('gameBtn')
-gameBtn.addEventListener('click', startOrStopGame)
+let gameBtn = document.getElementById('gameBtn');
+gameBtn.addEventListener('click', startOrStopGame);
 
 function startOrStopGame(){
-    let btnText = gameBtn.innerHTML
+    let btnText = gameBtn.innerHTML;
     if(btnText == "ИГРАТЬ"){
         //НАЧАТЬ ИГРУ
-        startGame()
-
-        gameBtn.innerHTML = "ЗАКОНЧИТЬ ИГРУ"
+        startGame();
+        gameBtn.innerHTML = "ЗАКОНЧИТЬ ИГРУ";
     } else {
         //ЗАКОНЧИТЬ ИГРУ
-        stopGame()
-
-        gameBtn.innerHTML = "ИГРАТЬ"
+        stopGame();
+        gameBtn.innerHTML = "ИГРАТЬ";
     }
 }
 
@@ -162,35 +168,107 @@ async function startGame(){
     let response = await sendRequest('new_game', 'POST', {
         'username': USERNAME,
         points
-    })
+    });
     if(response.error){
         //Произошла ошибка
-        alert(response.message)
-        gameBtn.innerHTML = "ИГРАТЬ"
+        alert(response.message);
+        gameBtn.innerHTML = "ИГРАТЬ";
     } else {
         //Игра успешно началась
-        updateUserBalance()
-        game_id = response.game_id
-        activateArea()
-
-        console.log(game_id)
+        updateUserBalance();
+        game_id = response.game_id;
+        activateArea();
+        console.log(game_id);
     }
-    
 }
 
 async function stopGame(){
     let response = await sendRequest('stop_game', 'POST', {
         'username': USERNAME,
         game_id
-    })
+    });
     if(response.error){
         //Произошла ошибка
-        alert(response.message)
-        gameBtn.innerHTML = "ЗАКОНЧИТЬ ИГРУ"
+        alert(response.message);
+        gameBtn.innerHTML = "ЗАКОНЧИТЬ ИГРУ";
     } else {
         //Игра закончилась успешно
-        updateUserBalance()
-        cleanArea()
+        updateUserBalance();
+        cleanArea();
     }
+}
 
+async function makeStep(event){
+    let cell = event.target;
+    let row = +cell.getAttribute('data-row');
+    let column = +cell.getAttribute('data-column');
+
+    console.log(row, column);
+
+    let response = await sendRequest('game_step', 'POST', {
+        game_id, row, column
+    });
+
+    if(response.error){
+        alert(response.message);
+    } else{
+        //Успешный ход
+        updateArea(response.table);
+        if(response.status == "Ok"){
+            //Играем дальше
+        } else if(response.status == "Failed"){
+            //Напоролся на бомбу 
+            alert('Вы проиграли');
+            gameBtn.classList.add('disabled-button');
+            gameBtn.innerHTML = "ИГРАТЬ";
+
+            setTimeout( () =>{
+                cleanArea();
+                gameBtn.classList.remove('disabled-button');
+            }, 3000);
+        } else if(response.status == "Won"){
+            //Выиграл игру
+            alert('Вы выиграли');
+            updateUserBalance();
+
+            gameBtn.classList.add('disabled-button');
+            gameBtn.innerHTML = "ИГРАТЬ";
+
+            setTimeout( () =>{
+                cleanArea();
+                gameBtn.classList.remove('disabled-button');
+            }, 3000);
+        }
+    }
+}
+
+function updateArea(table){
+    //Какие могут быть значения у ячейки (переменная value)
+    //BOMB
+    //0
+    // 12345678
+    let cells = document.querySelectorAll(".cell");
+
+    let a = 0; //Номер ячейки 
+    for(let i = 0; i < table.length; i++){
+        //проходимся по рядам 
+        let row = table[i];
+        for(let j = 0; j < row.length; j++){
+            //Проходимся по ячейкам в ряде
+            let value = row[j];
+            let cell = cells[a];
+            if(value === "BOMB"){
+                cell.classList.remove('active');
+                cell.classList.add('bomb');
+            } else if(value ===""){
+                // do nothing
+            } else if(value === 0){
+                cell.classList.remove('active');
+            } else if(value > 0){
+                cell.classList.remove('active');
+                cell.innerHTML = value;
+            }
+            a++;
+        }
+    }
 }
